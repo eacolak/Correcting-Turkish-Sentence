@@ -1,8 +1,33 @@
+# TRANSFORMER
 # Bu kodlar Transformer mimarisi yapmaya çalıştığım kısımdır
 # Fasttext bu mimari içi kullanılmadı çünkü elimizdeki karakter sayısı zaten az
 # fasttext gibi büyük bir dosyayı koda entegre etmemize gerek yok
 
-# KOD ÇALIŞIYOR ÇOK ELLEŞME BOZULUYO SONRA
+# EĞİTİM KISMI ÇALIŞIYOR ÇOK ELLEŞME BOZULUYO SONRA
+
+# Model çıktısı iyi olmasına rağmen test aşamasında cümleleri düzeltemedi.
+
+# Model gayet iyi bir çıktı vermişti loss değeri: 0.0040 civarı değerlerde geziyordu fakat
+# şu ana kadar öğrendiğim overfitting tarzı model hatalarından ziyade model şu anda 
+# model collapse döngüsüyle saçmalamaya başlamış durumda.
+# Olası sebepler:
+
+# Yetersiz eğitim. epochs sayısını 20 den 50-100 gibi değerlere arttırarak modelin doğrulama kaybı dikkatle izlenir
+# doğrulama kaybındaki artış artık modelin bir şey öğrenmek yerine ezber yapmaya başladığının göstergesidir.
+
+# Hiperparametreler:
+# model boyutu d_model = 128 gibi bir boyutta karakter seviyesini öğrenmek için yetersiz kalıyor olabilir. (underfitting)
+# öğrenme oranı: Customschedule, transformerlar için standart olsa da bizim veri setimizin boyutu için uygun olmayabilir.
+# belki de öğrenme hızı çok hızlı düşüyor veya yeterince ısınmıyordur.
+# bu durumda d_model = 256 ve dff = 1024 gibi hiperparametre değişimleri denenebilir. bu hareket modelin öğrenme kapasitesini arttırır.
+
+# Tahmin Stratejisi: Greedy Search
+# Şu anki tahmin kodum, her adımda sadece en yüksek olasılığa sahip tek bir karakter seçiyor.
+# Bu yöntemle model bir adımda küçük bir hata yaparsa bu hata sonraki adımları etkiler ve model bir daha toparlayamayabilir.
+# Tekrarlama döngülerinin en büyük dezavantajı budur.
+# Daha gelişmiş bir tahmin yöntemi kullanılabilir. Beam Search.
+
+
 
 import time
 import os
@@ -172,7 +197,7 @@ class MultiHeadSelfAttention(tf.keras.layers.Layer):
     def __init__(self, d_model, num_heads):
         super(MultiHeadSelfAttention, self).__init__()
 
-        # kerasın hazır multiheadattention fonksiyonu ile kaç başlıkolacağını: num_heads
+        # kerasın hazır multiheadattention fonksiyonu ile kaç başlık olacağını: num_heads
         # ve başlık başına ne kadar özellik düşeceğini belirliyoruz.
         self.attention = tf.keras.layers.MultiHeadAttention(
             num_heads = num_heads, # Okuyucu başlık sayısı
@@ -364,7 +389,6 @@ class DecoderLayer(tf.keras.layers.Layer):
         ffn_output = self.ffn(out2)
         ffn_output = self.dropout3(ffn_output, training = training)
         out3 = self.layernorm3(out2 + ffn_output)
-
         return out3
 
 class Decoder(tf.keras.layers.Layer):
