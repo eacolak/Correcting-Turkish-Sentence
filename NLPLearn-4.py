@@ -1,5 +1,5 @@
 # Bu kodlar Transformer mimarisi yapmaya çalıştığım kısımdır
-# Fasttext bu mimari içi kullanılmadı çünkü elimizdeki karakter sayısı zaten az
+# Fasttext bu mimari içi kullanılmadı çünkü elimizdeki tanınması gereken karakter sayısı zaten az
 # fasttext gibi büyük bir dosyayı koda entegre etmemize gerek yok
 
 # Bu kodda elimizdeki transformer modelini Pre-LN modeline çeviriyoruz. Buradaki değişiklik transformer modellerinde yaptığımız normalizasyonu öne çekmektir
